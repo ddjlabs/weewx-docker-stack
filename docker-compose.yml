@@ -1,0 +1,74 @@
+version: "2.1"
+services:
+  web:
+    image: nginx
+    container_name: weewx_web
+    networks:
+      - wxnet
+    ports:
+      - 91:80
+    depends_on:
+      - mqtt-broker
+      - weewx-engine
+      - weewx_mariadb_server
+    environment:
+      - TZ=America/New_York
+      - NGINX_HOST=your-domain-name.com
+      - NGINX_PORT=80
+    volumes:
+      - /media/docker/volumes/weewx/html:/usr/share/nginx/html:ro
+      - /media/docker/volumes/ngnix/templates:/etc/nginx/templates
+    restart: unless-stopped 
+  
+  mqtt-broker:
+    image: eclipse-mosquitto:latest
+    container_name: weewx_mqtt
+    networks:
+      - wxnet
+    environment:
+      - TZ=America/New_York
+    volumes:
+      - /media/docker/volumes/weewx/mosquitto/config:/mosquitto/config
+      - /media/docker/volumes/weewx/mosquitto/data:/mosquitto/data
+      - /media/docker/volumes/weewx/mosquitto/log:/mosquitto/log
+    ports:
+      - 1883:1883
+      - 9001:9001
+    depends_on:
+      - weewx-engine
+      - weewx_mariadb_server
+    restart: unless-stopped    
+  
+  weewx-engine:
+    image: weewx:4.5.1
+    container_name: weewx_data_engine
+    environment:
+      - TZ=America/New_York
+    networks:
+      - wxnet
+    privileged: true
+    volumes:
+      - /media/docker/volumes/weewx/config/:/home/weewx/conf/
+      - /media/docker/volumes/weewx/skins/Belchertown/:/home/weewx/skins/Belchertown/
+      - /media/docker/volumes/weewx/html/:/home/weewx/public_html/
+    depends_on:
+      - weewx_mariadb_server
+    restart: unless-stopped
+
+  weewx_mariadb_server:
+    image: linuxserver/mariadb
+    container_name: weewx_mariadb
+    networks:
+      - wxnet
+    environment:
+      - MYSQL_ROOT_PASSWORD=replace_me
+      - TZ=America/NewYork
+    volumes:
+      -  /media/docker/volumes/mariadb:/config
+    ports:
+      - 3306:3306
+    restart: unless-stopped
+
+networks:
+  wxnet:
+    driver: bridge

@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+HOME=/home/weewx
+CONF_FILE=/home/weewx/conf/weewx.conf
+echo "using $CONF_FILE"
+
+cd $HOME
+
+./bin/weewxd $CONF_FILE > /dev/stdout
