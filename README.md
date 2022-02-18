@@ -11,10 +11,10 @@ These files build out my weewx configuration. I create a custom docker image bas
 
 The entire stack runs within its own docker network and is managed in the config files.
 
-#Assumptions
+# Assumptions
 1. Setup a weewx user account with sudo privileges on your target Linux Server.
-2. Setup the following directories:
-   - /media/docker/volumnes/mariadb
+2. Setup the following directories (You can replace /media/docker/volumes with something else):
+   - /media/docker/volumes/mariadb
    - /media/docker/volumes/weewx/mosquitto/config
    - /media/docker/volumes/weewx/mosquitto/data
    - /media/docker/volumes/weewx/mosquitto/log
